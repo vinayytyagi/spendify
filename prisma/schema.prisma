@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum TransactionType {
+  expense
+  income
+}
+
+enum WantsVsNeeds {
+  want
+  need
+}
+
+model User {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  email        String        @unique
+  passwordHash String
+  createdAt    DateTime      @default(now())
+
+  wallets      Wallet[]
+  transactions Transaction[]
+  quickAdds    QuickAdd[]
+}
+
+model Wallet {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String        @db.ObjectId
+  name          String
+  isArchived    Boolean       @default(false)
+  monthlyBudget Int?
+  createdAt     DateTime      @default(now())
+
+  user          User          @relation(fields: [userId], references: [id])
+  transactions  Transaction[]
+  quickAdds     QuickAdd[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String           @db.ObjectId
+  walletId     String           @db.ObjectId
+  clientId     String
+  date         DateTime
+  description  String
+  amount       Int
+  txnType      TransactionType
+  wantsVsNeeds WantsVsNeeds
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  user         User             @relation(fields: [userId], references: [id])
+  wallet       Wallet           @relation(fields: [walletId], references: [id])
+
+  @@index([userId, walletId, date])
+  @@unique([userId, clientId])
+}
+
+model QuickAdd {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String           @db.ObjectId
+  walletId     String           @db.ObjectId
+  label        String
+  amount       Int
+  txnType      TransactionType
+  wantsVsNeeds WantsVsNeeds
+  createdAt    DateTime         @default(now())
+
+  user         User             @relation(fields: [userId], references: [id])
+  wallet       Wallet           @relation(fields: [walletId], references: [id])
+
+  @@index([userId, walletId])
+}

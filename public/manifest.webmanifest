@@ -1,0 +1,17 @@
+{
+  "name": "Spendify",
+  "short_name": "Spendify",
+  "description": "Personal finance tracker (INR) with wallets, quick adds, and analytics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/next.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
+
